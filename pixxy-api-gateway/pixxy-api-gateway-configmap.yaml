@@ -1,0 +1,53 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+    name: pixxy-api-gateway-configmap
+    namespace: pixxy
+data:
+    # ===============================
+    # App
+    # ===============================
+
+    SPRING_APP_NAME: pixxy-api-gateway
+    SPRING_APP_PORT: "8080"
+
+    # ===============================
+    # Gateway Routes
+    # ===============================
+
+    ROUTE_0_ID: user-service
+    ROUTE_0_URI: http://user-service:8081
+    ROUTE_0_PATH: /api/v1/users/**
+
+    ROUTE_1_ID: file-service
+    ROUTE_1_URI: http://pixxy-file-service:8082
+    ROUTE_1_PATH: /api/v1/files/**
+
+    # ===============================
+    # Redis
+    # ===============================
+
+    REDIS_HOST: redis
+    REDIS_PORT: "6379"
+
+    # ===============================
+    # Logging
+    # ===============================
+
+    LOG_PATH: /logs
+
+    LOG_LEVEL_SECURITY: DEBUG
+    LOG_LEVEL_GATEWAY: DEBUG
+    LOG_LEVEL_NETTY: DEBUG
+    LOG_LEVEL_APP: DEBUG
+
+    LOG_MAX_FILE_SIZE: 10MB
+    LOG_MAX_HISTORY: "30"
+
+    # ===============================
+    # Tracing / Actuator
+    # ===============================
+
+    ACTUATOR_EXPOSE: health,info
+    TRACING_ENABLED: "true"
+    TRACING_PROBABILITY: "1.0"

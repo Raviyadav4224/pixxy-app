@@ -1,0 +1,26 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+    name: pixxy-api-gateway
+    namespace: pixxy
+spec:
+    replicas: 1
+    selector:
+        matchLabels:
+            app: pixxy-api-gateway
+    template:
+        metadata:
+            labels:
+                app: pixxy-api-gateway
+        spec:
+            containers:
+                - name: pixxy-api-gateway
+                  image: ravikumar4224/pixxy-api-gateway:1.0.0
+                  ports:
+                      - containerPort: 8080
+
+                  envFrom:
+                      - configMapRef:
+                            name: pixxy-api-gateway-configmap
+                      - secretRef:
+                            name: pixxy-api-gateway-secret
