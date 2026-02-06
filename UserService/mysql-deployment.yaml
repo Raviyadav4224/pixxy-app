@@ -1,0 +1,29 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mysql
+  namespace: pixxy
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mysql
+  template:
+    metadata:
+      labels:
+        app: mysql
+    spec:
+      containers:
+        - name: mysql
+          image: mysql:8
+          env:
+            - name: MYSQL_DATABASE
+              value: practice
+            - name: MYSQL_USER
+              value: ravi
+            - name: MYSQL_PASSWORD
+              value: ravi123
+            - name: MYSQL_ROOT_PASSWORD
+              value: root
+          ports:
+            - containerPort: 3306

@@ -1,0 +1,29 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: pixxy-user-configmap
+  namespace: pixxy
+data:
+  SPRING_APP_NAME: user-service
+  SPRING_APP_PORT: "8081"
+
+  MYSQL_HOSTNAME: mysql
+  MYSQL_PORT_HOST: "3306"
+  MYSQL_DB_NAME: practice
+
+  LOG_PATH: /logs
+  LOG_LEVEL: DEBUG
+
+  FILESERVICE_URL: http://pixxy-file-service:8082
+
+  JWT_EXPIRATION_MS: "86400000"
+
+  JPA_SHOW_SQL: "true"
+  JPA_DDL_AUTO: update
+
+  FEIGN_CONNECT_TIMEOUT: "500"
+  FEIGN_READ_TIMEOUT: "500"
+
+  FILE_TIMEOUT: 3s
+
+  OTEL_ENDPOINT: ""

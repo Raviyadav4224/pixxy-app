@@ -1,0 +1,25 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pixxy-user-service
+  namespace: pixxy
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: user-service
+  template:
+    metadata:
+      labels:
+        app: user-service
+    spec:
+      containers:
+        - name: user-service
+          image: ravikumar4224/pixxy-user-service:1.0.0  
+          ports:
+            - containerPort: 8081
+          envFrom:
+            - configMapRef:
+                name: pixxy-user-configmap
+            - secretRef:
+                name: pixxy-user-secret
