@@ -1,0 +1,46 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+    name: pixxy-file-service
+    namespace: pixxy
+spec:
+    replicas: 1
+    selector:
+        matchLabels:
+            app: file-service
+    template:
+        metadata:
+            labels:
+                app: file-service
+        spec:
+            containers:
+                - name: file-service
+                  image: ravikumar4224/pixxy-file-service:1.0.0
+                  ports:
+                      - containerPort: 8082
+
+                  envFrom:
+                      - configMapRef:
+                            name: pixxy-file-service-configmap
+                      - secretRef:
+                            name: pixxy-file-service-secret
+
+                  # 👉 Mount volumes inside container
+                  volumeMounts:
+                      - name: logs-volume
+                        mountPath: /logs
+
+                      - name: files-volume
+                        mountPath: /data/files
+
+            # 👉 Actual storage on host machine
+            volumes:
+                - name: logs-volume
+                  hostPath:
+                      path: /run/desktop/mnt/host/d/k8s-data/file-service/logs
+                      type: DirectoryOrCreate
+
+                - name: files-volume
+                  hostPath:
+                      path: /run/desktop/mnt/host/d/k8s-data/file-service/files 
+                      type: DirectoryOrCreate
