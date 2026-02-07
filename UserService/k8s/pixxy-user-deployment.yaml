@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
         - name: user-service
-          image: ravikumar4224/pixxy-user-service:1.0.0  
+          image: ravikumar4224/pixxy-user-service:IMAGE_TAG
           ports:
             - containerPort: 8081
           envFrom:
