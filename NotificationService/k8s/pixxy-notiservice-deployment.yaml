@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
         - name: pixxy-notiService
-          image: ravikumar4224/pixxy-notiService:IMAGE_TAG
+          image: ravikumar4224/pixxy-notiservice:IMAGE_TAG
           ports:
             - containerPort: 8083
           envFrom:
