@@ -1,25 +1,25 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: pixxy-notiService
+  name: pixxy-notiservice
   namespace: pixxy
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: pixxy-notiService
+      app: pixxy-notiservice
   template:
     metadata:
       labels:
-        app: pixxy-notiService
+        app: pixxy-notiservice
     spec:
       containers:
-        - name: pixxy-notiService
+        - name: pixxy-notiservice
           image: ravikumar4224/pixxy-notiservice:IMAGE_TAG
           ports:
             - containerPort: 8083
           envFrom:
             - configMapRef:
-                name: pixxy-notiService-configmap
+                name: pixxy-notiservice-configmap
             - secretRef:
-                name: pixxy-notiService-secret
+                name: pixxy-notiservice-secret

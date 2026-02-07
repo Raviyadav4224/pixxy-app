@@ -1,14 +1,14 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: pixxy-notiService-service
+  name: pixxy-notiservice-service
   namespace: pixxy
   labels:
-    app: pixxy-notiService-service
+    app: pixxy-notiservice-service
 spec:
   type: ClusterIP
   selector:
-    app: pixxy-notiService-service
+    app: pixxy-notiservice-service
   ports:
     - protocol: TCP
       port: 8083
