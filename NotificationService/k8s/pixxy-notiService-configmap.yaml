@@ -4,3 +4,6 @@ metadata:
   name: pixxy-notiservice-config
   namespace: pixxy
 data:
+  SERVER_PORT: "8083"
+  SERVER_SHUTDOWN: "graceful"
+  KAFKA_PORT: "9092"
