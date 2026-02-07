@@ -15,7 +15,7 @@ spec:
         spec:
             containers:
                 - name: file-service
-                  image: ravikumar4224/pixxy-file-service:1.0.0
+                  image: ravikumar4224/pixxy-file-service:IMAGE
                   ports:
                       - containerPort: 8082
 

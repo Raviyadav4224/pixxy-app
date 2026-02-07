@@ -4,7 +4,6 @@ metadata:
   name: pixxy-file-service-configmap
   namespace: pixxy
 data:
-
   SPRING_APP_PORT: "8082"
 
   MYSQL_HOSTNAME: "mysql"
