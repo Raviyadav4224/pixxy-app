@@ -15,7 +15,7 @@ spec:
         spec:
             containers:
                 - name: pixxy-api-gateway
-                  image: ravikumar4224/pixxy-api-gateway:1.0.0
+                  image: ravikumar4224/pixxy-api-gateway:IMAGE_TAG
                   ports:
                       - containerPort: 8080
 

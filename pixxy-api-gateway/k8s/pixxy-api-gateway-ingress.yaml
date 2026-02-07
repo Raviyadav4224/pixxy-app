@@ -6,7 +6,7 @@ metadata:
   annotations:
     nginx.ingress.kubernetes.io/rewrite-target: /
 spec:
-  ingressClassName: nginx   # 👈 THIS IS THE IMPORTANT PART
+  ingressClassName: nginx # 👈 THIS IS THE IMPORTANT PART
   rules:
     - host: pixxy.api.local
       http:
