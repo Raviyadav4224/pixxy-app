@@ -1,0 +1,138 @@
+pipeline {
+    agent any
+
+    environment {
+        APP_NAME = 'pixxy-notiservice'
+        APP_DIR = 'NotificationService'
+
+        GIT_BRANCH = 'notiService'
+        GIT_URL = 'https://github.com/Raviyadav4224/pixxy-app.git'
+        GIT_CREDENTIALS_ID = 'github-pat-id'
+
+        DOCKERHUB_USERNAME = 'ravikumar4224'
+        DOCKERHUB_CREDENTIALS_ID = 'dockerhub-pat-id'
+
+        K8S_NAMESPACE = 'pixxy'
+        K8S_DIR = 'NotificationService/k8s'
+        K8S_DEPLOYMENT_FILE = 'pixxy-notiService-deployment.yaml'
+        K8S_SERVICE_FILE = 'pixxy-notiService-service.yaml'
+        K8S_CONFIGMAP_FILE = 'pixxy-notiService-configmap.yaml'
+    }
+
+      stages {
+        stage('Clean Workspace') {
+            steps {
+                deleteDir()
+            }
+        }
+
+        stage('Code Checkout') {
+            steps {
+                echo 'Going through GIT'
+                git branch: env.GIT_BRANCH,
+                    url: env.GIT_URL,
+                    credentialsId: env.GIT_CREDENTIALS_ID
+            }
+        }
+
+        stage('Build Docker Image') {
+            steps {
+                dir(env.APP_DIR){
+                    echo 'Creating Docker Image'
+                    sh 'pwd'
+                    withCredentials([
+                        usernamePassword(
+                            credentialsId: env.GIT_CREDENTIALS_ID,
+                            usernameVariable: 'GITHUB_USER',
+                            passwordVariable: 'GITHUB_TOKEN'
+                        )
+                    ]) {
+                        sh '''
+                          docker build \
+                            --build-arg GITHUB_USER=$GITHUB_USER \
+                            --build-arg GITHUB_TOKEN=$GITHUB_TOKEN \
+                            -t ${APP_NAME}:1.0.${BUILD_NUMBER} .
+                        '''
+                    }
+                }
+            }
+        }
+
+        stage('Push Image'){
+            steps{
+                dir(env.APP_DIR){
+                    withCredentials([
+                        usernamePassword(
+                            credentialsId: env.DOCKERHUB_CREDENTIALS_ID,
+                            usernameVariable: 'DOCKERHUB_USER',
+                            passwordVariable: 'DOCKERHUB_TOKEN'
+                        )
+                    ]){
+                        sh '''
+                            echo "LOGIN TO DOCKERHUB"
+                            echo "$DOCKERHUB_TOKEN" | docker login -u "$DOCKERHUB_USER" --password-stdin
+                            docker tag ${APP_NAME}:1.0.${BUILD_NUMBER} \
+                                ${DOCKERHUB_USERNAME}/${APP_NAME}:1.0.${BUILD_NUMBER}
+                            docker push ${DOCKERHUB_USERNAME}/${APP_NAME}:1.0.${BUILD_NUMBER}
+                            echo "LOGOUT FROM DOCKERHUB"
+                            docker logout
+                        '''
+                    }
+                }
+            }
+        }
+
+        stage('Deploy to Kubernets'){
+            steps{
+                dir(env.K8S_DIR){
+                    withCredentials([
+                        file(credentialsId: 'kubeconfig-dev',  variable: 'KUBECONFIG_FILE'),
+                        file(credentialsId: 'userservice-k8s-secret',  variable: 'SECRET_FILE')
+                    ]){
+                        sh '''
+                            export KUBECONFIG=$KUBECONFIG_FILE
+                            sed -i "s|IMAGE_TAG|1.0.${BUILD_NUMBER}|g" ${K8S_DEPLOYMENT_FILE}
+
+                            echo "=== SECRET FILE CONTENT (DEBUG) ==="
+                            cat -n $SECRET_FILE
+                            echo "=== END SECRET FILE ==="
+
+                            echo "Applying Kubernetes secret"
+                            kubectl apply -n ${K8S_NAMESPACE} -f $SECRET_FILE
+
+                            echo "Applying config and app manifests"
+                            kubectl apply -n ${K8S_NAMESPACE} -f ${K8S_CONFIGMAP_FILE}
+                            kubectl apply -n ${K8S_NAMESPACE} -f ${K8S_DEPLOYMENT_FILE}
+                            kubectl apply -n ${K8S_NAMESPACE} -f ${K8S_SERVICE_FILE}
+
+                            kubectl rollout status deployment/${APP_NAME} -n ${K8S_NAMESPACE}  || \
+                            kubectl rollout undo deployment/${APP_NAME} -n pixxy
+                        '''
+                    }
+                }
+            }
+        }
+
+        stage('Cleanup Docker Images'){
+            steps{
+                sh '''
+                    echo "Reclaiming territory boudaries"
+                    docker images --format "{{.Repository}}:{{.Tag}} {{.ID}}" \
+                    | grep "${APP_NAME}" \
+                    | grep -v "1.0.${BUILD_NUMBER}" \
+                    | awk '{print $2}' \
+                    | xargs -r docker rmi || true
+                '''
+            }
+        }
+    }
+
+    post {
+        always {
+            cleanWs()
+        }
+        failure {
+            echo "Pipeline failed. Workspace cleaned."
+        }
+    }
+}
