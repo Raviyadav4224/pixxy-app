@@ -117,8 +117,11 @@ pipeline {
             steps{
                 sh '''
                     echo "Reclaiming territory boudaries"
-                    docker rmi ${APP_NAME}:1.0.${BUILD_NUMBER} || true
-                    docker rmi ${DOCKERHUB_USERNAME}/${APP_NAME}:1.0.${BUILD_NUMBER} || true
+                    docker images --format "{{.Repository}}:{{.Tag}} {{.ID}}" \
+                    | grep "${APP_NAME}" \
+                    | grep -v "1.0.${BUILD_NUMBER}" \
+                    | awk '{print $2}' \
+                    | xargs -r docker rmi || true
                 '''
             }
         }
